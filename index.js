@@ -210,7 +210,11 @@ class Bassist extends Musician {
   // метод joinBand, що змінює значення #band,this.#band = band
   // перевизначений метод play(), що виводить рядок в консоль ${super.name} грає на ${super.instrument} в групі ${this.#band}
 }
-
+Object.defineProperty(Musician.prototype, "band", {
+  set: function (newBand) {
+    this.band = newBand;
+  },
+});
 // Тут ми використовуємо Object.defineProperty(), щоб додати сетер band до класу Musician після його створення.
 // Перший аргумент - це об'єкт, до якого ми хочемо додати властивість. У цьому випадку це Musician.prototype,
 // тому що ми хочемо додати сетер до всіх екземплярів класу Musician.
@@ -244,19 +248,14 @@ class Band {
   }
 
   set name(newMember) {
-    addMember = function () {
-      if (Musician.prototype.isPrototypeOf(newMember)) {
-        Object.defineProperty(Musician.prototype, "band", {
-          set band(newBand) {
-            this.#band = newBand;
-          },
-          enumerable: true,
-          configurable: true,
-        });
-        this.#members.push(newMember);
-      } else
-        console.log("Новий учасник повинен бути екземпляром класу Musician");
-    };
+    if (newMember instanceof Musician) {
+      newMember.band = this.#name; // Ось тут ми використовуємо сетер band класу Musician
+      // До приватного поля #members яке є масивом додаємо мового музиканта
+      this.#members.push(newMember);
+    } else {
+      // Якщо ні виводимо в консоль повідомлення Новий учасник повинен бути екземпляром класу Musician
+      console.log("Новий учасник повинен бути екземпляром класу Musician");
+    }
   }
   playMusic() {
     this.#members.forEach((element) => {
